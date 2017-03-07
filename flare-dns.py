@@ -75,7 +75,7 @@ def dns_put(zoneid,dnsname,dnsid,ipaddr,type="A"):
         headers = {"X-Auth-Email": "{0}".format(flareMail), "X-Auth-Key": "{0}".format(flareKey), "Content-Type": "application/json"}
         param = {"type": "{0}".format(type), "name": "{0}".format(dnsname), "content": "{0}".format(ipaddr)}
         log(param)
-        r = requests.put(full_url, headers=headers,  data=json.dumps(param))
+        r = requests.put(full_url, headers=headers, json=param)
         return r
 
 get_arg(sys.argv[1:])
@@ -96,7 +96,6 @@ else:
     sys.exit()
 
 myip = ipgetter.myip()
-myip = "187.190.43.219"
 log("Current global ip: {0}".format(myip))
 urlInfo = dns_info(flareUrl)
 
