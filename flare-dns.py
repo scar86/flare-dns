@@ -160,7 +160,7 @@ for item in data['result']:
                     exit_script(1)
             else:
                 log("There was an error updating records ")
-                log(urlInfo.text)
+                log(urlPut.text)
                 exit_script(1)
 
 
