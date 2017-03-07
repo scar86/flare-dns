@@ -71,7 +71,8 @@ def exit_script(rc):
 def dns_put(zoneid,dnsname,dnsid,ipaddr,type="A"):
         log("Setting dns record to {0}".format(ipaddr))
         full_url="{0}/zones/{1}/dns_records/{2}".format(flareUrl,zoneid,dnsid)
-        headers = {'type': "{0}".format(type), 'name': "{0}".format(dnsname), 'content': "{0}".format(ipaddr)}
+        headers = {'X-Auth-Email': "{0}".format(flareMail), 'X-Auth-Key': "{0}".format(flareKey)}
+        param = {'type': "{0}".format(type), 'name': "{0}".format(dnsname), 'content': "{0}".format(ipaddr)}
         r = requests.post(full_url, headers=headers, params=param)
         return r
 
