@@ -57,6 +57,16 @@ def get_info(url):
     r=requests.get(url, headers=headers)
     return r
 
+def exit_script(rc):
+    if rc == 0:
+        log("Finish execution of script")
+        log("")
+        fh.close()
+    else:
+        log("Script failed with RC {0}".format(rc))
+        #log("")
+        fh.close()
+        sys.exit(rc)
 
 get_arg(sys.argv[1:])
 
@@ -87,10 +97,11 @@ if re.search('200', str(urlInfo)):
     else:
         log("Query to url returned 200 ok, but responde indicate not successfull")
         log(data)
+        exit_script(1)
 else:
     log("There was an error getting domain info")
     log(urlInfo.text)
-    sys.exit()
+    exit_script(1)
 
 for item in data['result']:
     log(item['name'])
@@ -103,7 +114,34 @@ if flareId :
     pass
 else:
     log("Unable to find an ID for requested domain <{0}>".format(flareDomain))
-    sys.exit(1)
+    exit_script(1)
+
+log("Looking for DNS to update")
+
+urlInfo = get_info("{0}/{1}/dns_records".format(flareUrl,flareId))
+
+if re.search('200', str(urlInfo)):
+    data = json.loads(urlInfo.text)
+    if data['success']:
+        pass
+    else:
+        log("Query to url returned 200 ok, but responde indicate not successfull")
+        log(data)
+        exit_script(1)
+else:
+    log("There was an error getting records info")
+    log(urlInfo.text)
+    exit_script(1)
+
+for item in data['result']:
+    if item['type'] == 'A':
+        log("{0}: {1} {2}".format(item['type'],item['name'],item['content']))
+        if item['content'] == myip :
+            log("Record in sync")
+        else:
+            log("Need to update record for <{0}> ip is diffent {1} {2}".format(item['name'],item['content'],myip))
+            log("Debug : record {0} : {1}".format(item['name'],item['id']))
+
 
 
 log("Finish execution of script")
