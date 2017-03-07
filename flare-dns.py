@@ -39,7 +39,7 @@ def get_arg(argv):
             global flareDomain
             flareDomain = arg
         elif opt in ("-l","--log"):
-            global logfile
+            global logFile
             logFile = arg
         elif opt in ("-v","--verbose"):
             global verbose
@@ -82,18 +82,13 @@ get_arg(sys.argv[1:])
 
 fh = open(logFile, "a", 0)
 
-
-
 if flareDomain and flareMail and flareKey:
     log("Starting execution of script")
-    log ("CloudFlare mail: {0}".format(flareMail))
-    log ("CloudFlare key: {0}".format(flareKey))
-    log ("CloudFlare domain: {0}".format(flareDomain))
 else:
     print 'flare-dns.py -m <cloudflare-mail> -k <cloudflare-key> -d <domain>'
     print '-l <logfile> default /tmp/flare-dns.log'
     print '-v "verbose output and write to log"'
-    sys.exit()
+    sys.exit(1)
 
 myip = ipgetter.myip()
 log("Current global ip: {0}".format(myip))
@@ -109,6 +104,7 @@ if re.search('200', str(urlInfo)):
         exit_script(1)
 else:
     log("There was an error getting domain info")
+    log("Verify credentials and domain to update")
     log(urlInfo.text)
     exit_script(1)
 
@@ -125,7 +121,7 @@ else:
     log("Unable to find an ID for requested domain <{0}>".format(flareDomain))
     exit_script(1)
 
-log("Looking for DNS to update")
+log("Looking for DNS A records to update")
 
 urlInfo = dns_info("{0}/{1}/dns_records".format(flareUrl,flareId))
 
@@ -163,10 +159,6 @@ for item in data['result']:
                 log("There was an error updating records ")
                 log(urlPut.text)
                 exit_script(1)
-
-
-
-
 
 log("Finish execution of script")
 log("")
