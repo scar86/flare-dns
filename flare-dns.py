@@ -73,7 +73,7 @@ def dns_put(zoneid,dnsname,dnsid,ipaddr,type="A"):
         full_url="{0}/{1}/dns_records/{2}".format(flareUrl,zoneid,dnsid)
         headers = {'X-Auth-Email': "{0}".format(flareMail), 'X-Auth-Key': "{0}".format(flareKey)}
         param = {'type': "{0}".format(type), 'name': "{0}".format(dnsname), 'content': "{0}".format(ipaddr)}
-        r = requests.post(full_url, headers=headers, params=param)
+        r = requests.put(full_url, headers=headers, params=param)
         return r
 
 get_arg(sys.argv[1:])
