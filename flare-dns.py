@@ -51,7 +51,7 @@ def log(text):
     fh.write(str(text)+" \n")
 
 
-def get_info(url):
+def dns_info(url):
     log("Getting data from {0}".format(url))
     headers = {'X-Auth-Email': "{0}".format(flareMail), 'X-Auth-Key': "{0}".format(flareKey)}
     r=requests.get(url, headers=headers)
@@ -67,6 +67,13 @@ def exit_script(rc):
         #log("")
         fh.close()
         sys.exit(rc)
+
+def dns_put(zoneid,dnsname,dnsid,ipaddr,type="A"):
+        log("Setting dns record to {0}".format(ipaddr))
+        full_url="{0}/zones/{1}/dns_records/{2}".format(flareUrl,zoneid,dnsid)
+        headers = {'type': "{0}".format(type), 'name': "{0}".format(dnsname), 'content': "{0}".format(ipaddr)}
+        r = requests.post(full_url, headers=headers, params=param)
+        return r
 
 get_arg(sys.argv[1:])
 
@@ -88,7 +95,7 @@ else:
 myip = ipgetter.myip()
 
 log("Current global ip: {0}".format(myip))
-urlInfo = get_info(flareUrl)
+urlInfo = dns_info(flareUrl)
 
 if re.search('200', str(urlInfo)):
     data = json.loads(urlInfo.text)
@@ -118,7 +125,7 @@ else:
 
 log("Looking for DNS to update")
 
-urlInfo = get_info("{0}/{1}/dns_records".format(flareUrl,flareId))
+urlInfo = dns_info("{0}/{1}/dns_records".format(flareUrl,flareId))
 
 if re.search('200', str(urlInfo)):
     data = json.loads(urlInfo.text)
@@ -141,6 +148,21 @@ for item in data['result']:
         else:
             log("Need to update record for <{0}> ip is diffent {1} {2}".format(item['name'],item['content'],myip))
             log("Debug : record {0} : {1}".format(item['name'],item['id']))
+            urlPut = dns_put(flareId,item['name'],item['id'],myip)
+            if re.search('200', str(urlPut)):
+                data = json.loads(urlPut.text)
+                if data['success']:
+                    log("Successfully update record")
+                else:
+                    log("Query to url returned 200 ok, but responde indicate not successfull")
+                    log(data)
+                    exit_script(1)
+            else:
+                log("There was an error updating records ")
+                log(urlInfo.text)
+                exit_script(1)
+
+
 
 
 
